@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Playwright Locator Examples</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+    h2 { margin-top: 0; }
+    img { width: 120px; display: block; margin-bottom: 10px; }
+    button { margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h1>Playwright Built-in Locator Practice Page</h1>
+
+<!-- 1) getByAltText -->
+<section>
+  <h2>1) getByAltText</h2>
+  <img src="https://via.placeholder.com/120" alt="User Profile Image" />
+</section>
+
+<!-- 2) getByText -->
+<section>
+  <h2>2) getByText</h2>
+  <p>Welcome to Playwright Automation Testing</p>
+  <p>Click here to learn Playwright</p>
+</section>
+
+<!-- 3) getByRole -->
+<section>
+  <h2>3) getByRole</h2>
+  <button role="button">Submit</button>
+  <button role="button">Cancel</button>
+</section>
+
+<!-- 4) getByLabel -->
+<section>
+  <h2>4) getByLabel</h2>
+  <label for="username">Username</label>
+  <input id="username" type="text" />
+
+  <br /><br />
+
+  <label>
+    <input type="checkbox" /> Remember Me
+  </label>
+</section>
+
+<!-- 5) getByPlaceholder -->
+<section>
+  <h2>5) getByPlaceholder</h2>
+  <input type="email" placeholder="Enter your email" />
+</section>
+
+<!-- 6) getByTitle -->
+<section>
+  <h2>6) getByTitle</h2>
+  <button title="Save the form">Save</button>
+</section>
+
+<!-- 7) getByTestId -->
+<section>
+  <h2>7) getByTestId</h2>
+  <input data-testid="login-username" type="text" placeholder="Login Username" />
+  <button data-testid="login-button">Login</button>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+package mahesh.captcha;
+ 
+import java.io.*;
+import java.net.*;
+import java.nio.file.*;
+import java.util.*;
+ 
+public class TwoCaptchaExample {
+ 
+    private static final String API_KEY = "8f7b9029d276eca005cdb9ed14f46e3c";
+ 
+    public static void main(String[] args) throws Exception {
+ 
+        // Path to captcha image
+        String captchaPath = "D:/captcha.png";
+ 
+        // Step 1: Upload captcha
+        String captchaId = uploadCaptcha(captchaPath);
+        System.out.println("Captcha ID: " + captchaId);
+ 
+        // Step 2: Poll for result
+        String result = getCaptchaResult(captchaId);
+        System.out.println("Solved Captcha: " + result);
+    }
+ 
+    private static String uploadCaptcha(String imagePath) throws Exception {
+ 
+        String boundary = "----WebKitFormBoundary" + System.currentTimeMillis();
+        URL url = new URL("http://2captcha.com/in.php");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+ 
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+ 
+        try (OutputStream out = conn.getOutputStream()) {
+ 
+            // API Key
+            writeFormField(out, boundary, "key", API_KEY);
+ 
+            // Method
+            writeFormField(out, boundary, "method", "post");
+ 
+            // Image file
+            writeFileField(out, boundary, "file", imagePath);
+ 
+            // End boundary
+            out.write(("--" + boundary + "--\r\n").getBytes());
+        }
+ 
+        String response = readResponse(conn);
+        // Response format: OK|123456789
+        if (!response.startsWith("OK|")) {
+            throw new RuntimeException("Captcha upload failed: " + response);
+        }
+        return response.split("\\|")[1];
+    }
+ 
+    private static String getCaptchaResult(String captchaId) throws Exception {
+ 
+        String resultUrl = "http://2captcha.com/res.php?key=" + API_KEY
+                + "&action=get&id=" + captchaId;
+ 
+        // Wait before first check
+        Thread.sleep(20000);
+ 
+        while (true) {
+            URL url = new URL(resultUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+ 
+            String response = readResponse(conn);
+ 
+            if ("CAPCHA_NOT_READY".equals(response)) {
+                System.out.println("Captcha not ready, retrying...");
+                Thread.sleep(5000);
+            } else if (response.startsWith("OK|")) {
+                return response.split("\\|")[1];
+            } else {
+                throw new RuntimeException("Error solving captcha: " + response);
+            }
+        }
+    }
+ 
+    private static void writeFormField(OutputStream out, String boundary,
+                                       String name, String value) throws IOException {
+ 
+        out.write(("--" + boundary + "\r\n").getBytes());
+        out.write(("Content-Disposition: form-data; name=\"" + name + "\"\r\n\r\n").getBytes());
+        out.write((value + "\r\n").getBytes());
+    }
+ 
+    private static void writeFileField(OutputStream out, String boundary,
+                                       String fieldName, String filePath) throws IOException {
+ 
+        File file = new File(filePath);
+        out.write(("--" + boundary + "\r\n").getBytes());
+        out.write(("Content-Disposition: form-data; name=\"" + fieldName +
+                "\"; filename=\"" + file.getName() + "\"\r\n").getBytes());
+        out.write(("Content-Type: application/octet-stream\r\n\r\n").getBytes());
+        Files.copy(file.toPath(), out);
+        out.write("\r\n".getBytes());
+    }
+ 
+    private static String readResponse(HttpURLConnection conn) throws IOException {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()))) {
+ 
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            return sb.toString();
+        }
+    }
+}
